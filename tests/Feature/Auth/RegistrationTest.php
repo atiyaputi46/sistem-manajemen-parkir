@@ -1,27 +1,21 @@
 <?php
 
-use Laravel\Fortify\Features;
+// Registrasi publik dinonaktifkan — akun dibuat oleh admin melalui Menu Users.
 
-beforeEach(function () {
-    $this->skipUnlessFortifyHas(Features::registration());
+test('registration screen returns 404', function () {
+    $response = $this->get('/register');
+
+    $response->assertStatus(404);
 });
 
-test('registration screen can be rendered', function () {
-    $response = $this->get(route('register'));
-
-    $response->assertOk();
-});
-
-test('new users can register', function () {
-    $response = $this->post(route('register.store'), [
-        'name' => 'John Doe',
+test('registration endpoint returns 404', function () {
+    $response = $this->post('/register', [
+        'name' => 'Test User',
         'email' => 'test@example.com',
         'password' => 'password',
         'password_confirmation' => 'password',
     ]);
 
-    $response->assertSessionHasNoErrors()
-        ->assertRedirect(route('dashboard', absolute: false));
-
-    $this->assertAuthenticated();
+    $response->assertStatus(404);
+    $this->assertGuest();
 });
