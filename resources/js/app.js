@@ -1,7 +1,1 @@
-
-
-import Alpine from 'alpinejs';
-
-window.Alpine = Alpine;
-
-Alpine.start();
+// Alpine.js handled by Livewire 4 bundle — do not import separately.

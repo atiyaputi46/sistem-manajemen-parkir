@@ -182,9 +182,9 @@ class ExitGate extends Component
      *
      * @param  array<string, mixed>  $transaction
      */
-    public function calculateFee(array $transaction, ?Carbon $now = null): float
+    public function calculateFee(array $transaction, ?\DateTimeInterface $now = null): float
     {
-        $now = $now ?? now();
+        $now = $now !== null ? Carbon::instance($now) : now();
         $durationMinutes = (int) Carbon::parse($transaction['entry_time'])->diffInMinutes($now);
 
         if ($durationMinutes <= 60) {
