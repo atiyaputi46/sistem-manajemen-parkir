@@ -11,6 +11,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
+use Livewire\Attributes\Computed;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
@@ -20,29 +21,35 @@ class EntryGate extends Component
     // Step 1: Plat Nomor
     public string $vehiclePlate = '';
 
-    /** @var object|null */
-    public $activeMember = null;
+    /** @var array<string, string>|null */
+    public ?array $activeMember = null;
 
     public bool $isDuplicate = false;
 
     // Step 2: Jenis & Slot
     public string $vehicleType = 'motor';
 
-    /** @var Collection<int, ParkingSlot> */
-    public $availableSlots;
-
     public ?int $selectedSlotId = null;
 
     // Step 3: Hasil transaksi
-    /** @var ParkingTransaction|null */
-    public $lastTransaction = null;
-
     public bool $showTicket = false;
 
-    public function mount(): void
+    /** @var array<string, mixed>|null */
+    public ?array $lastTransaction = null;
+
+    /**
+     * Slot tersedia — dihitung ulang tiap render, tidak disimpan sebagai property.
+     *
+     * @return Collection<int, ParkingSlot>
+     */
+    #[Computed]
+    public function availableSlots(): Collection
     {
-        $this->availableSlots = collect();
-        $this->loadAvailableSlots();
+        return ParkingSlot::where('status', 'available')
+            ->where('vehicle_type', $this->vehicleType)
+            ->orderBy('slot_code')
+            ->limit(5)
+            ->get();
     }
 
     /**
@@ -58,7 +65,6 @@ class EntryGate extends Component
             return;
         }
 
-        // Cek member aktif
         $member = Member::where('vehicle_plate', $plate)
             ->where('status', 'active')
             ->where('subscription_end', '>=', Carbon::today())
@@ -66,28 +72,18 @@ class EntryGate extends Component
 
         $this->activeMember = $member ? $member->only(['full_name', 'vehicle_plate']) : null;
 
-        // Cek duplikat transaksi aktif
         $this->isDuplicate = ParkingTransaction::where('vehicle_plate', $plate)
             ->where('status', 'parked')
             ->exists();
     }
 
     /**
-     * Dipanggil setiap kali $vehicleType berubah (via wire:model.live).
+     * Reset pilihan slot saat jenis kendaraan berubah.
      */
     public function updatedVehicleType(): void
     {
         $this->selectedSlotId = null;
-        $this->loadAvailableSlots();
-    }
-
-    public function loadAvailableSlots(): void
-    {
-        $this->availableSlots = ParkingSlot::where('status', 'available')
-            ->where('vehicle_type', $this->vehicleType)
-            ->orderBy('slot_code')
-            ->limit(5)
-            ->get();
+        unset($this->availableSlots);
     }
 
     public function selectSlot(int $slotId): void
@@ -108,7 +104,6 @@ class EntryGate extends Component
             'selectedSlotId' => ['required', 'integer'],
         ]);
 
-        // Validasi ulang di server
         $duplicate = ParkingTransaction::where('vehicle_plate', $plate)
             ->where('status', 'parked')
             ->exists();
@@ -125,7 +120,7 @@ class EntryGate extends Component
 
         if (! $slot) {
             $this->addError('selectedSlotId', 'Slot tidak tersedia lagi. Silakan pilih slot lain.');
-            $this->loadAvailableSlots();
+            unset($this->availableSlots);
 
             return;
         }
@@ -157,10 +152,20 @@ class EntryGate extends Component
             return $tx;
         });
 
-        // Load relasi slot untuk karcis
         $transaction->load('slot');
-        $this->lastTransaction = $transaction;
+
+        // Simpan sebagai array plain agar bisa di-serialize Livewire
+        $this->lastTransaction = [
+            'id' => $transaction->id,
+            'vehicle_plate' => $transaction->vehicle_plate,
+            'vehicle_type' => $transaction->vehicle_type,
+            'entry_time' => $transaction->entry_time,
+            'officer_name' => $transaction->officer_name,
+            'slot_code' => $transaction->slot?->slot_code,
+        ];
+
         $this->showTicket = true;
+        unset($this->availableSlots);
     }
 
     /**
@@ -172,10 +177,10 @@ class EntryGate extends Component
         $this->activeMember = null;
         $this->isDuplicate = false;
         $this->vehicleType = 'motor';
-        $this->availableSlots = collect();
         $this->selectedSlotId = null;
         $this->lastTransaction = null;
         $this->showTicket = false;
+        unset($this->availableSlots);
     }
 
     public function render(): View

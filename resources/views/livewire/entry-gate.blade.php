@@ -94,14 +94,14 @@
         <div class="p-6" wire:loading.class="opacity-60" wire:target="vehicleType">
             <div class="mb-3 flex items-center justify-between">
                 <p class="text-xs font-semibold uppercase tracking-widest text-gray-400">③ Pilih Slot Parkir</p>
-                @if ($availableSlots->isNotEmpty())
+                @if ($this->availableSlots->isNotEmpty())
                     <span class="rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-500">
-                        {{ $availableSlots->count() }} tersedia
+                        {{ $this->availableSlots->count() }} tersedia
                     </span>
                 @endif
             </div>
 
-            @if ($availableSlots->isEmpty())
+            @if ($this->availableSlots->isEmpty())
                 <div class="flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3">
                     <svg class="h-4 w-4 shrink-0 text-amber-500" fill="currentColor" viewBox="0 0 20 20">
                         <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
@@ -110,7 +110,7 @@
                 </div>
             @else
                 <div class="mt-3 grid grid-cols-5 gap-2">
-                    @foreach ($availableSlots as $index => $slot)
+                    @foreach ($this->availableSlots as $index => $slot)
                         <div class="relative flex flex-col" wire:key="slot-{{ $slot->id }}">
 
                             {{-- Badge rekomendasi di atas kartu, di luar button --}}
@@ -172,7 +172,7 @@
                     <span>
                         <span class="text-gray-400 text-xs">Slot</span>
                         <span class="ml-1 font-bold text-gray-800">
-                            {{ $availableSlots->firstWhere('id', $selectedSlotId)?->slot_code ?? '—' }}
+                            {{ $this->availableSlots->firstWhere('id', $selectedSlotId)?->slot_code ?? '—' }}
                         </span>
                     </span>
                 </div>
@@ -237,11 +237,11 @@
                     </div>
                     <p class="text-sm font-medium text-green-100">Transaksi Berhasil</p>
                     <p class="mt-0.5 text-2xl font-extrabold font-mono tracking-widest text-white">
-                        {{ $lastTransaction->vehicle_plate }}
+                        {{ $lastTransaction['vehicle_plate'] }}
                     </p>
                     <p class="mt-1 text-xs text-green-100">
-                        #{{ str_pad($lastTransaction->id, 6, '0', STR_PAD_LEFT) }}
-                        · <span class="capitalize">{{ $lastTransaction->vehicle_type }}</span>
+                        #{{ str_pad($lastTransaction['id'], 6, '0', STR_PAD_LEFT) }}
+                        · <span class="capitalize">{{ $lastTransaction['vehicle_type'] }}</span>
                     </p>
                 </div>
 
@@ -256,17 +256,17 @@
                 <div class="px-6 py-4 space-y-2.5">
                     <div class="flex justify-between">
                         <span class="text-sm text-gray-500">Slot Parkir</span>
-                        <span class="text-sm font-bold text-gray-800">{{ $lastTransaction->slot?->slot_code ?? '—' }}</span>
+                        <span class="text-sm font-bold text-gray-800">{{ $lastTransaction['slot_code'] ?? '—' }}</span>
                     </div>
                     <div class="flex justify-between">
                         <span class="text-sm text-gray-500">Waktu Masuk</span>
                         <span class="text-sm font-semibold text-gray-800">
-                            {{ \Carbon\Carbon::parse($lastTransaction->entry_time)->format('d M Y, H:i') }}
+                            {{ \Carbon\Carbon::parse($lastTransaction['entry_time'])->format('d M Y, H:i') }}
                         </span>
                     </div>
                     <div class="flex justify-between">
                         <span class="text-sm text-gray-500">Petugas</span>
-                        <span class="text-sm font-medium text-gray-700">{{ $lastTransaction->officer_name }}</span>
+                        <span class="text-sm font-medium text-gray-700">{{ $lastTransaction['officer_name'] }}</span>
                     </div>
                     @if ($activeMember)
                         <div class="flex justify-between">
@@ -312,12 +312,12 @@
             <p class="text-center font-bold uppercase tracking-widest text-base">Sistem Manajemen Parkir</p>
             <p class="text-center font-extrabold text-2xl mt-1">KARCIS MASUK</p>
             <hr class="border-dashed my-4">
-            <p>ID      : #{{ str_pad($lastTransaction->id, 6, '0', STR_PAD_LEFT) }}</p>
-            <p>Plat    : {{ $lastTransaction->vehicle_plate }}</p>
-            <p>Jenis   : {{ ucfirst($lastTransaction->vehicle_type) }}</p>
-            <p>Slot    : {{ $lastTransaction->slot?->slot_code ?? '—' }}</p>
-            <p>Masuk   : {{ \Carbon\Carbon::parse($lastTransaction->entry_time)->format('d M Y H:i') }}</p>
-            <p>Petugas : {{ $lastTransaction->officer_name }}</p>
+            <p>ID      : #{{ str_pad($lastTransaction['id'], 6, '0', STR_PAD_LEFT) }}</p>
+            <p>Plat    : {{ $lastTransaction['vehicle_plate'] }}</p>
+            <p>Jenis   : {{ ucfirst($lastTransaction['vehicle_type']) }}</p>
+            <p>Slot    : {{ $lastTransaction['slot_code'] ?? '—' }}</p>
+            <p>Masuk   : {{ \Carbon\Carbon::parse($lastTransaction['entry_time'])->format('d M Y H:i') }}</p>
+            <p>Petugas : {{ $lastTransaction['officer_name'] }}</p>
             <hr class="border-dashed my-4">
             <p class="text-center text-xs">Simpan karcis ini. Kehilangan dikenakan denda.</p>
         </div>
