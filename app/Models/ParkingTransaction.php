@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ParkingTransaction extends Model
 {
@@ -22,4 +23,9 @@ class ParkingTransaction extends Model
         'officer_name',
         'status',
     ];
+
+    public function slot(): BelongsTo
+    {
+        return $this->belongsTo(ParkingSlot::class);
+    }
 }
