@@ -8,6 +8,7 @@ use App\Http\Controllers\MemberController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RateController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\ReportExportController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -32,6 +33,8 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/users', [UserController::class, 'index'])->name('users');
     Route::get('/rates', [RateController::class, 'index'])->name('rates');
     Route::get('/report', [ReportController::class, 'index'])->name('report');
+    Route::get('/report/export/excel', [ReportExportController::class, 'exportExcel'])->name('report.export.excel');
+    Route::get('/report/export/pdf', [ReportExportController::class, 'exportPdf'])->name('report.export.pdf');
 });
 
 require __DIR__.'/auth.php';
