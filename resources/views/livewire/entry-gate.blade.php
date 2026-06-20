@@ -1,4 +1,7 @@
-<div class="max-w-2xl">
+<div>
+
+    {{-- Semua konten layar (disembunyikan saat print) --}}
+    <div class="max-w-2xl print:hidden">
 
     {{-- ===== HEADER ===== --}}
     <div class="mb-5 flex items-start justify-between">
@@ -71,22 +74,61 @@
             <p class="mb-3 text-xs font-semibold uppercase tracking-widest text-gray-400">② Jenis Kendaraan</p>
 
             <div class="grid grid-cols-3 gap-3">
-                @foreach ([
-                    ['value' => 'motor', 'emoji' => '🛵', 'label' => 'Motor'],
-                    ['value' => 'mobil', 'emoji' => '🚗', 'label' => 'Mobil'],
-                    ['value' => 'truk',  'emoji' => '🚛', 'label' => 'Truk'],
-                ] as $type)
-                    <button
-                        type="button"
-                        wire:click="$set('vehicleType', '{{ $type['value'] }}')"
-                        class="flex items-center justify-center gap-2 rounded-lg border-2 px-4 py-3 text-sm font-semibold transition-colors
-                               {{ $vehicleType === $type['value']
-                                   ? 'border-indigo-500 bg-indigo-50 text-indigo-700'
-                                   : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:bg-gray-50' }}">
-                        <span class="text-lg">{{ $type['emoji'] }}</span>
-                        {{ $type['label'] }}
-                    </button>
-                @endforeach
+                {{-- Motor --}}
+                <button
+                    type="button"
+                    wire:click="$set('vehicleType', 'motor')"
+                    class="flex items-center justify-center gap-2 rounded-lg border-2 px-4 py-3 text-sm font-semibold transition-colors
+                           {{ $vehicleType === 'motor'
+                               ? 'border-indigo-500 bg-indigo-50 text-indigo-700'
+                               : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:bg-gray-50' }}">
+                    {{-- Motorcycle icon --}}
+                    <svg class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="5.5" cy="17.5" r="2.5"/>
+                        <circle cx="18.5" cy="17.5" r="2.5"/>
+                        <path d="M8 17.5h7"/>
+                        <path d="M10 17.5V11l3-4h3l2 4"/>
+                        <path d="M7 11h4"/>
+                        <path d="M14 7h2.5"/>
+                    </svg>
+                    Motor
+                </button>
+
+                {{-- Mobil --}}
+                <button
+                    type="button"
+                    wire:click="$set('vehicleType', 'mobil')"
+                    class="flex items-center justify-center gap-2 rounded-lg border-2 px-4 py-3 text-sm font-semibold transition-colors
+                           {{ $vehicleType === 'mobil'
+                               ? 'border-indigo-500 bg-indigo-50 text-indigo-700'
+                               : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:bg-gray-50' }}">
+                    {{-- Car icon --}}
+                    <svg class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M5 17H3a2 2 0 01-2-2v-4a2 2 0 011.7-1.97L6.08 8A6 6 0 0111.93 5h.14a6 6 0 015.85 3.03L20.3 9.03A2 2 0 0122 11v4a2 2 0 01-2 2h-2"/>
+                        <circle cx="7" cy="17" r="2"/>
+                        <circle cx="17" cy="17" r="2"/>
+                        <path d="M9 17h6"/>
+                    </svg>
+                    Mobil
+                </button>
+
+                {{-- Truk --}}
+                <button
+                    type="button"
+                    wire:click="$set('vehicleType', 'truk')"
+                    class="flex items-center justify-center gap-2 rounded-lg border-2 px-4 py-3 text-sm font-semibold transition-colors
+                           {{ $vehicleType === 'truk'
+                               ? 'border-indigo-500 bg-indigo-50 text-indigo-700'
+                               : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:bg-gray-50' }}">
+                    {{-- Truck icon --}}
+                    <svg class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M1 3h15v13H1z"/>
+                        <path d="M16 8h4l3 3v5h-7V8z"/>
+                        <circle cx="5.5" cy="18.5" r="2.5"/>
+                        <circle cx="18.5" cy="18.5" r="2.5"/>
+                    </svg>
+                    Truk
+                </button>
             </div>
         </div>
 
@@ -283,24 +325,37 @@
                 </div>
 
                 {{-- Tombol --}}
-                <div class="flex gap-3 border-t border-gray-100 bg-gray-50 px-6 py-4">
-                    <button
-                        type="button"
-                        onclick="window.print()"
-                        class="flex-1 inline-flex items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
-                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
-                        </svg>
-                        Cetak
-                    </button>
+                <div class="border-t border-gray-100 bg-gray-50 px-6 py-4 space-y-2">
+                    {{-- Baris 1: Cetak + Selesai --}}
+                    <div class="flex gap-3">
+                        <button
+                            type="button"
+                            onclick="window.print()"
+                            class="flex-1 inline-flex items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
+                            </svg>
+                            Cetak
+                        </button>
+                        <button
+                            type="button"
+                            wire:click="$set('showTicket', false)"
+                            class="flex-1 inline-flex items-center justify-center gap-2 rounded-lg border border-green-300 bg-white px-4 py-2 text-sm font-semibold text-green-700 hover:bg-green-50 transition-colors">
+                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                            </svg>
+                            Selesai
+                        </button>
+                    </div>
+                    {{-- Baris 2: Tambah kendaraan berikutnya --}}
                     <button
                         type="button"
                         wire:click="resetForm"
-                        class="flex-1 inline-flex items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700 transition-colors">
+                        class="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700 transition-colors">
                         <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                         </svg>
-                        Kendaraan Berikutnya
+                        + Tambah Kendaraan Masuk
                     </button>
                 </div>
 
@@ -308,19 +363,58 @@
         </div>
 
         {{-- Versi cetak --}}
-        <div class="hidden print:block p-8 font-mono text-sm">
-            <p class="text-center font-bold uppercase tracking-widest text-base">Sistem Manajemen Parkir</p>
-            <p class="text-center font-extrabold text-2xl mt-1">KARCIS MASUK</p>
-            <hr class="border-dashed my-4">
-            <p>ID      : #{{ str_pad($lastTransaction['id'], 6, '0', STR_PAD_LEFT) }}</p>
-            <p>Plat    : {{ $lastTransaction['vehicle_plate'] }}</p>
-            <p>Jenis   : {{ ucfirst($lastTransaction['vehicle_type']) }}</p>
-            <p>Slot    : {{ $lastTransaction['slot_code'] ?? '—' }}</p>
-            <p>Masuk   : {{ \Carbon\Carbon::parse($lastTransaction['entry_time'])->format('d M Y H:i') }}</p>
-            <p>Petugas : {{ $lastTransaction['officer_name'] }}</p>
-            <hr class="border-dashed my-4">
-            <p class="text-center text-xs">Simpan karcis ini. Kehilangan dikenakan denda.</p>
+        </div>{{-- end print:hidden wrapper --}}
+
+        <div class="hidden print:block" style="font-family:'Courier New',Courier,monospace;width:72mm;margin:0 auto;padding:8mm 6mm;font-size:11px;line-height:1.6;color:#000">
+
+            {{-- Header --}}
+            <div style="text-align:center;margin-bottom:6mm">
+                <p style="font-size:13px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;margin:0">Sistem Manajemen Parkir</p>
+                <p style="font-size:18px;font-weight:900;letter-spacing:0.12em;text-transform:uppercase;margin:2px 0 0">KARCIS MASUK</p>
+            </div>
+
+            <div style="border-top:1px dashed #000;margin-bottom:4mm"></div>
+
+            <table style="width:100%;border-collapse:collapse">
+                <tr>
+                    <td style="padding:1px 0;width:40%">ID</td>
+                    <td style="padding:1px 0">: #{{ str_pad($lastTransaction['id'], 6, '0', STR_PAD_LEFT) }}</td>
+                </tr>
+                <tr>
+                    <td style="padding:1px 0">Plat</td>
+                    <td style="padding:1px 0;font-weight:700">: {{ $lastTransaction['vehicle_plate'] }}</td>
+                </tr>
+                <tr>
+                    <td style="padding:1px 0">Jenis</td>
+                    <td style="padding:1px 0">: {{ ucfirst($lastTransaction['vehicle_type']) }}</td>
+                </tr>
+                <tr>
+                    <td style="padding:1px 0">Slot</td>
+                    <td style="padding:1px 0">: {{ $lastTransaction['slot_code'] ?? '—' }}</td>
+                </tr>
+            </table>
+
+            <div style="border-top:1px dashed #000;margin:3mm 0"></div>
+
+            <table style="width:100%;border-collapse:collapse">
+                <tr>
+                    <td style="padding:1px 0;width:40%">Masuk</td>
+                    <td style="padding:1px 0">: {{ \Carbon\Carbon::parse($lastTransaction['entry_time'])->format('d M Y H:i') }}</td>
+                </tr>
+                <tr>
+                    <td style="padding:1px 0">Petugas</td>
+                    <td style="padding:1px 0">: {{ $lastTransaction['officer_name'] }}</td>
+                </tr>
+            </table>
+
+            <div style="border-top:1px dashed #000;margin:3mm 0"></div>
+
+            <p style="text-align:center;font-size:10px;margin:0">Simpan karcis ini sebagai bukti masuk.</p>
+            <p style="text-align:center;font-size:10px;margin:1px 0 0">Kehilangan karcis dikenakan denda.</p>
+
         </div>
     @endif
+
+    </div>{{-- end max-w-2xl print:hidden --}}
 
 </div>

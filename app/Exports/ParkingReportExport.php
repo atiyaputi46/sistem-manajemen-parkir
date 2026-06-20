@@ -29,7 +29,7 @@ class ParkingReportExport
             $writer->openToFile('php://output');
 
             // --- Header row ---
-            $headerStyle = (new Style)->setFontBold();
+            $headerStyle = new Style(fontBold: true);
             $writer->addRow(Row::fromValues([
                 'No',
                 'Plat Nomor',
@@ -73,7 +73,7 @@ class ParkingReportExport
             $writer->addRow(Row::fromValues([]));
 
             // --- Summary rows ---
-            $boldStyle = (new Style)->setFontBold();
+            $boldStyle = new Style(fontBold: true);
             $writer->addRow(Row::fromValues(['RINGKASAN LAPORAN'], $boldStyle));
             $writer->addRow(Row::fromValues(['Periode', $this->periodLabel]));
             $writer->addRow(Row::fromValues(['Total Kendaraan', $this->transactions->count()]));

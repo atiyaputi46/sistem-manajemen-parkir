@@ -13,13 +13,19 @@
 
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+        <style>
+            @media print {
+                body { background: #fff !important; }
+                * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            }
+        </style>
     </head>
     <body class="font-sans antialiased bg-gray-100">
 
         <div class="flex h-screen overflow-hidden">
 
             {{-- ===== SIDEBAR ===== --}}
-            <aside class="w-64 bg-gray-900 text-gray-100 flex flex-col shrink-0">
+            <aside class="w-64 bg-gray-900 text-gray-100 flex flex-col shrink-0 print:hidden">
 
                 {{-- Logo / App Name --}}
                 <div class="flex items-center gap-2 px-6 py-5 border-b border-gray-700">
@@ -130,7 +136,7 @@
             <div class="flex-1 flex flex-col overflow-hidden">
 
                 {{-- ===== TOPBAR ===== --}}
-                <header class="bg-white shadow-sm border-b border-gray-200 shrink-0">
+                <header class="bg-white shadow-sm border-b border-gray-200 shrink-0 print:hidden">
                     <div class="flex items-center justify-between px-6 py-3">
                         <h1 class="text-base font-semibold text-gray-700">@yield('title', 'Sistem Manajemen Parkir')</h1>
 
@@ -161,7 +167,7 @@
                 </header>
 
                 {{-- ===== CONTENT AREA ===== --}}
-                <main class="flex-1 overflow-y-auto p-6">
+                <main class="flex-1 overflow-y-auto p-6 print:p-0 print:overflow-visible">
 
                     {{-- Flash error (dari CheckRole redirect) --}}
                     @if (session('error'))

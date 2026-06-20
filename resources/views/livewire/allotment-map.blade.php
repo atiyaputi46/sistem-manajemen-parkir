@@ -40,19 +40,39 @@
             Semua
         </button>
         <button type="button" wire:click="setFilter('motor')"
-            class="rounded-lg border px-4 py-1.5 text-sm font-medium transition-colors"
+            class="inline-flex items-center gap-1.5 rounded-lg border px-4 py-1.5 text-sm font-medium transition-colors"
             style="{{ $filter === 'motor' ? 'background:#4f46e5;border-color:#4f46e5;color:#fff' : 'background:#fff;border-color:#d1d5db;color:#374151' }}">
-            🛵 Motor
+            <svg class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="5.5" cy="17.5" r="2.5"/>
+                <circle cx="18.5" cy="17.5" r="2.5"/>
+                <path d="M8 17.5h7"/>
+                <path d="M10 17.5V11l3-4h3l2 4"/>
+                <path d="M7 11h4"/>
+                <path d="M14 7h2.5"/>
+            </svg>
+            Motor
         </button>
         <button type="button" wire:click="setFilter('mobil')"
-            class="rounded-lg border px-4 py-1.5 text-sm font-medium transition-colors"
+            class="inline-flex items-center gap-1.5 rounded-lg border px-4 py-1.5 text-sm font-medium transition-colors"
             style="{{ $filter === 'mobil' ? 'background:#4f46e5;border-color:#4f46e5;color:#fff' : 'background:#fff;border-color:#d1d5db;color:#374151' }}">
-            🚗 Mobil
+            <svg class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M5 17H3a2 2 0 01-2-2v-4a2 2 0 011.7-1.97L6.08 8A6 6 0 0111.93 5h.14a6 6 0 015.85 3.03L20.3 9.03A2 2 0 0122 11v4a2 2 0 01-2 2h-2"/>
+                <circle cx="7" cy="17" r="2"/>
+                <circle cx="17" cy="17" r="2"/>
+                <path d="M9 17h6"/>
+            </svg>
+            Mobil
         </button>
         <button type="button" wire:click="setFilter('truk')"
-            class="rounded-lg border px-4 py-1.5 text-sm font-medium transition-colors"
+            class="inline-flex items-center gap-1.5 rounded-lg border px-4 py-1.5 text-sm font-medium transition-colors"
             style="{{ $filter === 'truk' ? 'background:#4f46e5;border-color:#4f46e5;color:#fff' : 'background:#fff;border-color:#d1d5db;color:#374151' }}">
-            🚛 Truk
+            <svg class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M1 3h15v13H1z"/>
+                <path d="M16 8h4l3 3v5h-7V8z"/>
+                <circle cx="5.5" cy="18.5" r="2.5"/>
+                <circle cx="18.5" cy="18.5" r="2.5"/>
+            </svg>
+            Truk
         </button>
 
         <span class="ml-auto self-center rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-500">
@@ -70,10 +90,10 @@
         <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(72px,1fr));gap:8px">
             @foreach ($parkingSlots as $slot)
                 @php
-                    $icon = match ($slot->vehicle_type) {
-                        'motor' => '🛵',
-                        'truk'  => '🚛',
-                        default => '🚗',
+                    $iconType = match ($slot->vehicle_type) {
+                        'motor' => 'motor',
+                        'truk'  => 'truk',
+                        default => 'mobil',
                     };
 
                     // Inline style per status — aman dari Tailwind purge
@@ -101,7 +121,24 @@
 
                     {{-- Ikon kendaraan untuk occupied --}}
                     @if ($slot->status === 'occupied')
-                        <p style="margin-top:2px;font-size:1rem;line-height:1">{{ $icon }}</p>
+                        <div style="margin-top:3px;display:flex;justify-content:center">
+                            @if ($iconType === 'motor')
+                                <svg style="width:14px;height:14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="5.5" cy="17.5" r="2.5"/><circle cx="18.5" cy="17.5" r="2.5"/>
+                                    <path d="M8 17.5h7"/><path d="M10 17.5V11l3-4h3l2 4"/><path d="M7 11h4"/><path d="M14 7h2.5"/>
+                                </svg>
+                            @elseif ($iconType === 'truk')
+                                <svg style="width:14px;height:14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M1 3h15v13H1z"/><path d="M16 8h4l3 3v5h-7V8z"/>
+                                    <circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
+                                </svg>
+                            @else
+                                <svg style="width:14px;height:14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M5 17H3a2 2 0 01-2-2v-4a2 2 0 011.7-1.97L6.08 8A6 6 0 0111.93 5h.14a6 6 0 015.85 3.03L20.3 9.03A2 2 0 0122 11v4a2 2 0 01-2 2h-2"/>
+                                    <circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/><path d="M9 17h6"/>
+                                </svg>
+                            @endif
+                        </div>
                     @endif
 
                     {{-- Tombol override "⋮" — muncul saat hover --}}
@@ -190,13 +227,31 @@
                     </div>
                     <p class="mt-1 text-sm capitalize" style="color:#fecaca">
                         @php
-                            $typeIcon = match ($selectedSlot['vehicle_type']) {
-                                'motor' => '🛵',
-                                'truk'  => '🚛',
-                                default => '🚗',
+                            $typeIconName = match ($selectedSlot['vehicle_type']) {
+                                'motor' => 'motor',
+                                'truk'  => 'truk',
+                                default => 'mobil',
                             };
                         @endphp
-                        {{ $typeIcon }} {{ ucfirst($selectedSlot['vehicle_type']) }}
+                        <span class="inline-flex items-center gap-1">
+                            @if ($typeIconName === 'motor')
+                                <svg style="width:14px;height:14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="5.5" cy="17.5" r="2.5"/><circle cx="18.5" cy="17.5" r="2.5"/>
+                                    <path d="M8 17.5h7"/><path d="M10 17.5V11l3-4h3l2 4"/><path d="M7 11h4"/><path d="M14 7h2.5"/>
+                                </svg>
+                            @elseif ($typeIconName === 'truk')
+                                <svg style="width:14px;height:14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M1 3h15v13H1z"/><path d="M16 8h4l3 3v5h-7V8z"/>
+                                    <circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
+                                </svg>
+                            @else
+                                <svg style="width:14px;height:14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M5 17H3a2 2 0 01-2-2v-4a2 2 0 011.7-1.97L6.08 8A6 6 0 0111.93 5h.14a6 6 0 015.85 3.03L20.3 9.03A2 2 0 0122 11v4a2 2 0 01-2 2h-2"/>
+                                    <circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/><path d="M9 17h6"/>
+                                </svg>
+                            @endif
+                            {{ ucfirst($selectedSlot['vehicle_type']) }}
+                        </span>
                         @if (! empty($selectedSlot['zone'])) · Zona {{ $selectedSlot['zone'] }} @endif
                         · Lantai {{ $selectedSlot['floor'] ?? '1' }}
                     </p>

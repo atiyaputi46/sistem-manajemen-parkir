@@ -1,4 +1,7 @@
-<div class="max-w-2xl" wire:poll.10s>
+<div wire:poll.10s>
+
+    {{-- Semua konten layar (disembunyikan saat print) --}}
+    <div class="max-w-2xl print:hidden">
 
     {{-- ===== HEADER ===== --}}
     <div class="mb-5 flex items-start justify-between">
@@ -155,23 +158,39 @@
             <div class="p-6">
                 <p class="mb-3 text-xs font-semibold uppercase tracking-widest text-gray-400">③ Metode Pembayaran</p>
 
-                <div class="grid grid-cols-3 gap-3">
-                    @foreach ([
-                        ['value' => 'tunai',        'emoji' => '💵', 'label' => 'Tunai'],
-                        ['value' => 'qris',         'emoji' => '📲', 'label' => 'QRIS'],
-                        ['value' => 'kartu_akses',  'emoji' => '💳', 'label' => 'Kartu Akses'],
-                    ] as $method)
-                        <button
-                            type="button"
-                            wire:click="$set('paymentMethod', '{{ $method['value'] }}')"
-                            class="flex items-center justify-center gap-2 rounded-lg border-2 px-4 py-3 text-sm font-semibold transition-colors
-                                   {{ $paymentMethod === $method['value']
-                                       ? 'border-indigo-500 bg-indigo-50 text-indigo-700'
-                                       : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:bg-gray-50' }}">
-                            <span class="text-lg">{{ $method['emoji'] }}</span>
-                            {{ $method['label'] }}
-                        </button>
-                    @endforeach
+                <div class="grid grid-cols-2 gap-3">
+                    {{-- Tunai --}}
+                    <button
+                        type="button"
+                        wire:click="$set('paymentMethod', 'tunai')"
+                        class="flex items-center justify-center gap-2 rounded-lg border-2 px-4 py-3 text-sm font-semibold transition-colors
+                               {{ $paymentMethod === 'tunai'
+                                   ? 'border-indigo-500 bg-indigo-50 text-indigo-700'
+                                   : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:bg-gray-50' }}">
+                        {{-- Cash / banknotes icon --}}
+                        <svg class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+                            <circle cx="12" cy="12" r="3"/>
+                            <path d="M1 10h4M19 10h4M1 14h4M19 14h4"/>
+                        </svg>
+                        Tunai
+                    </button>
+
+                    {{-- Kartu Akses --}}
+                    <button
+                        type="button"
+                        wire:click="$set('paymentMethod', 'kartu_akses')"
+                        class="flex items-center justify-center gap-2 rounded-lg border-2 px-4 py-3 text-sm font-semibold transition-colors
+                               {{ $paymentMethod === 'kartu_akses'
+                                   ? 'border-indigo-500 bg-indigo-50 text-indigo-700'
+                                   : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:bg-gray-50' }}">
+                        {{-- Credit card icon --}}
+                        <svg class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+                            <line x1="1" y1="10" x2="23" y2="10"/>
+                        </svg>
+                        Kartu Akses
+                    </button>
                 </div>
             </div>
         @endif
@@ -315,9 +334,6 @@
                         type="button"
                         wire:click="resetForm"
                         class="flex-1 inline-flex items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700 transition-colors">
-                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                        </svg>
                         Selesai
                     </button>
                 </div>
@@ -326,27 +342,95 @@
         </div>
 
         {{-- Versi cetak --}}
-        <div class="hidden print:block p-8 font-mono text-sm">
-            <p class="text-center font-bold uppercase tracking-widest text-base">Sistem Manajemen Parkir</p>
-            <p class="text-center font-extrabold text-2xl mt-1">STRUK KELUAR</p>
-            <hr class="border-dashed my-4">
-            <p>ID      : #{{ str_pad($receiptData['id'], 6, '0', STR_PAD_LEFT) }}</p>
-            <p>Plat    : {{ $receiptData['vehicle_plate'] }}</p>
-            <p>Jenis   : {{ ucfirst($receiptData['vehicle_type']) }}</p>
-            <p>Slot    : {{ $receiptData['slot_code'] ?? '—' }}</p>
-            <p>Masuk   : {{ \Carbon\Carbon::parse($receiptData['entry_time'])->format('d M Y H:i') }}</p>
-            <p>Keluar  : {{ \Carbon\Carbon::parse($receiptData['exit_time'])->format('d M Y H:i') }}</p>
-            <p>Durasi  : {{ $this->formatDuration($receiptData['duration_minutes']) }}</p>
-            <hr class="border-dashed my-4">
-            @if ($receiptData['is_lost_ticket'])
-                <p>Biaya Parkir        : Rp {{ number_format($receiptData['base_fee'], 0, ',', '.') }}</p>
-                <p>Denda Karcis Hilang : Rp {{ number_format($receiptData['fine_lost_ticket'], 0, ',', '.') }}</p>
-            @endif
-            <p>Total   : Rp {{ number_format($receiptData['total_fee'], 0, ',', '.') }}</p>
-            <p>Bayar   : {{ ucwords(str_replace('_', ' ', $receiptData['payment_method'])) }}</p>
-            <p>Petugas : {{ $receiptData['officer_name'] }}</p>
-            <hr class="border-dashed my-4">
-            <p class="text-center text-xs">Terima kasih atas kunjungan Anda.</p>
+        </div>{{-- end print:hidden wrapper --}}
+
+        <div class="hidden print:block" style="font-family:'Courier New',Courier,monospace;width:72mm;margin:0 auto;padding:8mm 6mm;font-size:11px;line-height:1.6;color:#000">
+
+            {{-- Header --}}
+            <div style="text-align:center;margin-bottom:6mm">
+                <p style="font-size:13px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;margin:0">Sistem Manajemen Parkir</p>
+                <p style="font-size:18px;font-weight:900;letter-spacing:0.12em;text-transform:uppercase;margin:2px 0 0">STRUK KELUAR</p>
+            </div>
+
+            <div style="border-top:1px dashed #000;margin-bottom:4mm"></div>
+
+            {{-- Info transaksi --}}
+            <table style="width:100%;border-collapse:collapse">
+                <tr>
+                    <td style="padding:1px 0;width:40%">ID</td>
+                    <td style="padding:1px 0">: #{{ str_pad($receiptData['id'], 6, '0', STR_PAD_LEFT) }}</td>
+                </tr>
+                <tr>
+                    <td style="padding:1px 0">Plat</td>
+                    <td style="padding:1px 0;font-weight:700">: {{ $receiptData['vehicle_plate'] }}</td>
+                </tr>
+                <tr>
+                    <td style="padding:1px 0">Jenis</td>
+                    <td style="padding:1px 0">: {{ ucfirst($receiptData['vehicle_type']) }}</td>
+                </tr>
+                <tr>
+                    <td style="padding:1px 0">Slot</td>
+                    <td style="padding:1px 0">: {{ $receiptData['slot_code'] ?? '—' }}</td>
+                </tr>
+            </table>
+
+            <div style="border-top:1px dashed #000;margin:3mm 0"></div>
+
+            <table style="width:100%;border-collapse:collapse">
+                <tr>
+                    <td style="padding:1px 0;width:40%">Masuk</td>
+                    <td style="padding:1px 0">: {{ \Carbon\Carbon::parse($receiptData['entry_time'])->format('d M Y H:i') }}</td>
+                </tr>
+                <tr>
+                    <td style="padding:1px 0">Keluar</td>
+                    <td style="padding:1px 0">: {{ \Carbon\Carbon::parse($receiptData['exit_time'])->format('d M Y H:i') }}</td>
+                </tr>
+                <tr>
+                    <td style="padding:1px 0">Durasi</td>
+                    <td style="padding:1px 0">: {{ $this->formatDuration($receiptData['duration_minutes']) }}</td>
+                </tr>
+            </table>
+
+            <div style="border-top:1px dashed #000;margin:3mm 0"></div>
+
+            <table style="width:100%;border-collapse:collapse">
+                @if ($receiptData['is_lost_ticket'])
+                    <tr>
+                        <td style="padding:1px 0;width:55%">Biaya Parkir</td>
+                        <td style="padding:1px 0;text-align:right">Rp {{ number_format($receiptData['base_fee'], 0, ',', '.') }}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding:1px 0">Denda Karcis Hilang</td>
+                        <td style="padding:1px 0;text-align:right">Rp {{ number_format($receiptData['fine_lost_ticket'], 0, ',', '.') }}</td>
+                    </tr>
+                    <tr>
+                        <td colspan="2" style="border-top:1px solid #000;padding-top:2px"></td>
+                    </tr>
+                @endif
+                <tr>
+                    <td style="padding:1px 0;font-weight:700;font-size:13px">TOTAL</td>
+                    <td style="padding:1px 0;text-align:right;font-weight:700;font-size:13px">Rp {{ number_format($receiptData['total_fee'], 0, ',', '.') }}</td>
+                </tr>
+                <tr>
+                    <td style="padding:1px 0">Metode Bayar</td>
+                    <td style="padding:1px 0;text-align:right">{{ ucwords(str_replace('_', ' ', $receiptData['payment_method'])) }}</td>
+                </tr>
+            </table>
+
+            <div style="border-top:1px dashed #000;margin:3mm 0"></div>
+
+            <table style="width:100%;border-collapse:collapse">
+                <tr>
+                    <td style="padding:1px 0;width:40%">Petugas</td>
+                    <td style="padding:1px 0">: {{ $receiptData['officer_name'] }}</td>
+                </tr>
+            </table>
+
+            <div style="border-top:1px dashed #000;margin:4mm 0 3mm"></div>
+
+            <p style="text-align:center;font-size:10px;margin:0">Terima kasih atas kunjungan Anda.</p>
+            <p style="text-align:center;font-size:10px;margin:1px 0 0">Simpan struk ini sebagai bukti pembayaran.</p>
+
         </div>
     @endif
 
@@ -416,5 +500,7 @@
             </div>
         </div>
     @endif
+
+    </div>{{-- end max-w-2xl print:hidden --}}
 
 </div>
