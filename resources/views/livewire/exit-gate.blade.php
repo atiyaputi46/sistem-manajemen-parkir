@@ -1,7 +1,7 @@
 <div wire:poll.10s>
 
     {{-- Semua konten layar (disembunyikan saat print) --}}
-    <div class="max-w-2xl print:hidden">
+    <div class="w-full print:hidden">
 
     {{-- ===== HEADER ===== --}}
     <div class="mb-5 flex items-start justify-between">

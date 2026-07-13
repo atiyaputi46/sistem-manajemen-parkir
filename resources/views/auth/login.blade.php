@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Masuk — {{ config('app.name', 'Sistem Manajemen Parkir') }}</title>
+    <title>Masuk — Sistem Manajemen Parkir</title>
 
     {{-- Google Fonts: Space Grotesk + Inter --}}
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -271,56 +271,7 @@
             display: block;
         }
 
-        /* ── Remember + submit row ───────────────────────────── */
-        .remember-row {
-            display: flex;
-            align-items: center;
-            margin-bottom: 1.75rem;
-        }
-
-        .remember-checkbox {
-            appearance: none;
-            width: 16px;
-            height: 16px;
-            border: 2px solid #CBD5E1;
-            border-radius: 4px;
-            cursor: pointer;
-            position: relative;
-            flex-shrink: 0;
-            transition: border-color 150ms ease, background-color 150ms ease;
-        }
-
-        .remember-checkbox:checked {
-            background-color: var(--color-violet);
-            border-color: var(--color-violet);
-        }
-
-        .remember-checkbox:checked::after {
-            content: '';
-            position: absolute;
-            left: 3px;
-            top: 1px;
-            width: 6px;
-            height: 9px;
-            border: 2px solid #fff;
-            border-top: none;
-            border-left: none;
-            transform: rotate(45deg);
-        }
-
-        .remember-checkbox:focus-visible {
-            outline: 2px solid var(--color-violet);
-            outline-offset: 2px;
-        }
-
-        .remember-label {
-            font-family: 'Inter', sans-serif;
-            font-size: 0.8125rem;
-            color: #4B5563;
-            margin-left: 0.5rem;
-            cursor: pointer;
-            user-select: none;
-        }
+        /* ── Submit row ──────────────────────────── */
 
         /* submit button */
         .btn-submit {
@@ -352,25 +303,7 @@
             opacity: 0.85;
         }
 
-        /* forgot password link */
-        .forgot-link {
-            display: block;
-            text-align: center;
-            margin-top: 1.25rem;
-            font-family: 'Inter', sans-serif;
-            font-size: 0.8125rem;
-            color: var(--color-slate);
-            text-decoration: none;
-            transition: color 150ms ease;
-        }
 
-        .forgot-link:hover { color: var(--color-violet); }
-
-        .forgot-link:focus-visible {
-            outline: 2px solid var(--color-violet);
-            outline-offset: 2px;
-            border-radius: 3px;
-        }
 
         /* session status */
         .session-status {
@@ -416,14 +349,9 @@
             .field-input:focus { border-color: var(--color-amber); }
             .field-input::placeholder { color: rgba(255,255,255,0.2); }
             .field-input:focus-visible { outline-color: var(--color-amber); }
-            .remember-label { color: rgba(248,250,252,0.65); }
-            .remember-checkbox { border-color: rgba(255,255,255,0.3); }
-            .remember-checkbox:checked { background-color: var(--color-amber); border-color: var(--color-amber); }
             .pw-toggle  { color: rgba(248,250,252,0.5); }
             .pw-toggle:hover { color: var(--color-cloud); }
             .btn-submit { background-color: var(--color-amber); color: var(--color-ink); }
-            .forgot-link { color: rgba(248,250,252,0.45); }
-            .forgot-link:hover { color: var(--color-cloud); }
         }
     </style>
 </head>
@@ -515,7 +443,7 @@
             @endif
 
             <p class="form-eyebrow">Masuk ke Sistem</p>
-            <h2 class="form-title">{{ config('app.name', 'Sistem Manajemen Parkir') }}</h2>
+            <h2 class="form-title">Sistem Manajemen Parkir</h2>
             <p class="form-subtitle">Masukkan kredensial Anda untuk melanjutkan.</p>
 
             <form method="POST" action="{{ route('login') }}" novalidate>
@@ -585,28 +513,11 @@
                     @enderror
                 </div>
 
-                {{-- ── Remember me ─────────────────────────── --}}
-                <div class="remember-row">
-                    <input
-                        type="checkbox"
-                        class="remember-checkbox"
-                        id="remember_me"
-                        name="remember"
-                    >
-                    <label for="remember_me" class="remember-label">Ingat saya</label>
-                </div>
-
                 {{-- ── Submit ──────────────────────────────── --}}
                 <button type="submit" class="btn-submit">
                     Masuk
                 </button>
 
-                {{-- ── Forgot password ─────────────────────── --}}
-                @if (Route::has('password.request'))
-                    <a href="{{ route('password.request') }}" class="forgot-link">
-                        Lupa kata sandi?
-                    </a>
-                @endif
             </form>
 
         </div>

@@ -15,30 +15,56 @@ use Livewire\Attributes\Computed;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
+/**
+ * Komponen Livewire untuk Gerbang Masuk (Entry Gate POS).
+ * Menangani input plat nomor kendaraan, deteksi member aktif, verifikasi parkir ganda,
+ * rekomendasi slot parkir kosong terdekat, dan proses cetak tiket masuk.
+ */
 #[Title('Entry Gate')]
 class EntryGate extends Component
 {
-    // Step 1: Plat Nomor
+    /**
+     * Plat nomor kendaraan yang diinput oleh petugas.
+     */
     public string $vehiclePlate = '';
 
-    /** @var array<string, string>|null */
+    /**
+     * Menyimpan informasi nama dan plat member jika terdeteksi aktif.
+     *
+     * @var array<string, string>|null
+     */
     public ?array $activeMember = null;
 
+    /**
+     * Flag penanda apakah plat nomor yang dimasukkan sudah tercatat sedang terparkir.
+     */
     public bool $isDuplicate = false;
 
-    // Step 2: Jenis & Slot
+    /**
+     * Jenis kendaraan yang masuk: 'motor', 'mobil', atau 'truk'.
+     */
     public string $vehicleType = 'motor';
 
+    /**
+     * ID slot parkir yang dipilih oleh petugas.
+     */
     public ?int $selectedSlotId = null;
 
-    // Step 3: Hasil transaksi
+    /**
+     * Status penampilan modal/pop-up cetak karcis setelah transaksi masuk berhasil.
+     */
     public bool $showTicket = false;
 
-    /** @var array<string, mixed>|null */
+    /**
+     * Menyimpan rincian data transaksi masuk yang baru saja berhasil diproses.
+     *
+     * @var array<string, mixed>|null
+     */
     public ?array $lastTransaction = null;
 
     /**
-     * Slot tersedia — dihitung ulang tiap render, tidak disimpan sebagai property.
+     * Mengambil daftar slot parkir kosong (available) terdekat (limit 5).
+     * Dihitung ulang secara dinamis dan reaktif setiap kali view dirender.
      *
      * @return Collection<int, ParkingSlot>
      */
@@ -53,7 +79,10 @@ class EntryGate extends Component
     }
 
     /**
-     * Dipanggil setiap kali $vehiclePlate berubah (via wire:model.live.debounce.400ms).
+     * Dipanggil otomatis oleh Livewire setiap kali properti $vehiclePlate berubah.
+     * Digunakan untuk memvalidasi duplikasi plat parkir dan mendeteksi keanggotaan member.
+     *
+     * @param  string  $value  Nilai plat nomor kendaraan yang baru
      */
     public function updatedVehiclePlate(string $value): void
     {
@@ -61,10 +90,12 @@ class EntryGate extends Component
         $this->isDuplicate = false;
         $this->activeMember = null;
 
+        // Validasi minimal panjang plat nomor
         if (strlen($plate) < 4) {
             return;
         }
 
+        // Cek apakah plat nomor terdaftar sebagai member aktif dan masa berlakunya belum habis
         $member = Member::where('vehicle_plate', $plate)
             ->where('status', 'active')
             ->where('subscription_end', '>=', Carbon::today())
@@ -72,13 +103,14 @@ class EntryGate extends Component
 
         $this->activeMember = $member ? $member->only(['full_name', 'vehicle_plate']) : null;
 
+        // Cek apakah kendaraan ini sudah tercatat masuk dan belum keluar (parked)
         $this->isDuplicate = ParkingTransaction::where('vehicle_plate', $plate)
             ->where('status', 'parked')
             ->exists();
     }
 
     /**
-     * Reset pilihan slot saat jenis kendaraan berubah.
+     * Mengatur ulang pilihan slot parkir apabila jenis kendaraan diubah oleh petugas.
      */
     public function updatedVehicleType(): void
     {
@@ -86,24 +118,32 @@ class EntryGate extends Component
         unset($this->availableSlots);
     }
 
+    /**
+     * Memilih slot parkir tertentu untuk kendaraan yang akan masuk.
+     *
+     * @param  int  $slotId  ID slot parkir yang dipilih
+     */
     public function selectSlot(int $slotId): void
     {
         $this->selectedSlotId = $slotId;
     }
 
     /**
-     * Proses entry kendaraan: validasi, ambil tarif, simpan transaksi, update slot.
+     * Memproses masuknya kendaraan: validasi form, pengecekan slot,
+     * pengambilan tarif aktif, pembuatan transaksi parkir, dan mengubah status slot menjadi terisi.
      */
     public function confirmEntry(): void
     {
         $plate = strtoupper(trim($this->vehiclePlate));
 
+        // Melakukan validasi input petugas
         $this->validate([
             'vehiclePlate' => ['required', 'min:4'],
             'vehicleType' => ['required', 'in:motor,mobil,truk'],
             'selectedSlotId' => ['required', 'integer'],
         ]);
 
+        // Proteksi ganda untuk mencegah masuknya plat nomor yang sama sekaligus
         $duplicate = ParkingTransaction::where('vehicle_plate', $plate)
             ->where('status', 'parked')
             ->exists();
@@ -114,6 +154,7 @@ class EntryGate extends Component
             return;
         }
 
+        // Pastikan slot yang dipilih memang masih berstatus kosong (available)
         $slot = ParkingSlot::where('id', $this->selectedSlotId)
             ->where('status', 'available')
             ->first();
@@ -125,6 +166,7 @@ class EntryGate extends Component
             return;
         }
 
+        // Ambil konfigurasi tarif ter-update untuk jenis kendaraan ini
         $rate = ParkingRate::where('vehicle_type', $this->vehicleType)->first();
 
         if (! $rate) {
@@ -133,7 +175,9 @@ class EntryGate extends Component
             return;
         }
 
+        // Simpan transaksi di dalam database transaction agar data tetap konsisten (atomis)
         $transaction = DB::transaction(function () use ($plate, $slot, $rate): ParkingTransaction {
+            // Buat record transaksi baru dengan menyimpan snapshot tarif saat ini
             $tx = ParkingTransaction::create([
                 'slot_id' => $this->selectedSlotId,
                 'vehicle_plate' => $plate,
@@ -147,6 +191,7 @@ class EntryGate extends Component
                 'officer_name' => Auth::user()->name,
             ]);
 
+            // Ubah status slot menjadi ditempati (occupied)
             $slot->update(['status' => 'occupied']);
 
             return $tx;
@@ -154,7 +199,7 @@ class EntryGate extends Component
 
         $transaction->load('slot');
 
-        // Simpan sebagai array plain agar bisa di-serialize Livewire
+        // Menyimpan data transaksi ke array agar bisa di-serialize dengan aman oleh Livewire
         $this->lastTransaction = [
             'id' => $transaction->id,
             'vehicle_plate' => $transaction->vehicle_plate,
@@ -164,12 +209,13 @@ class EntryGate extends Component
             'slot_code' => $transaction->slot?->slot_code,
         ];
 
+        // Tampilkan karcis tiket untuk dicetak
         $this->showTicket = true;
         unset($this->availableSlots);
     }
 
     /**
-     * Reset semua state ke kondisi awal.
+     * Mengatur ulang semua state properti formulir gerbang masuk ke kondisi awal.
      */
     public function resetForm(): void
     {
@@ -183,6 +229,9 @@ class EntryGate extends Component
         unset($this->availableSlots);
     }
 
+    /**
+     * Merender file view Blade untuk antarmuka Gerbang Masuk.
+     */
     public function render(): View
     {
         return view('livewire.entry-gate');

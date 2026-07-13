@@ -161,6 +161,14 @@
                                     </button>
                                 @endif
 
+                                {{-- Perpanjang (hanya expired) --}}
+                                @if ($member->status === 'expired')
+                                    <button wire:click="openRenewModal({{ $member->id }})"
+                                        class="rounded-md px-3 py-1.5 text-xs font-medium text-green-700 ring-1 ring-green-300 hover:bg-green-50 transition-colors">
+                                        Perpanjang
+                                    </button>
+                                @endif
+
                             </div>
                         </td>
                     </tr>
@@ -225,8 +233,8 @@
         <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
             <div class="w-full max-w-sm rounded-xl bg-white shadow-xl">
                 <div class="px-6 py-5 text-center">
-                    <div class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-orange-100">
-                        <svg class="h-6 w-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
+                        <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                         </svg>
@@ -243,7 +251,7 @@
                         Batal
                     </button>
                     <button wire:click="deactivateMember({{ $deactivatingMemberId }})" wire:loading.attr="disabled"
-                        class="flex-1 rounded-lg bg-orange-600 px-4 py-2 text-sm font-medium text-white hover:bg-orange-700 transition-colors disabled:opacity-60">
+                        class="flex-1 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 transition-colors disabled:opacity-60">
                         <span wire:loading.remove wire:target="deactivateMember">Ya, Nonaktifkan</span>
                         <span wire:loading wire:target="deactivateMember">Memproses...</span>
                     </button>
@@ -278,6 +286,37 @@
                         class="flex-1 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 transition-colors disabled:opacity-60">
                         <span wire:loading.remove wire:target="deleteMember">Ya, Hapus</span>
                         <span wire:loading wire:target="deleteMember">Menghapus...</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    {{-- ===== MODAL KONFIRMASI PERPANJANG ===== --}}
+    @if ($showRenewModal)
+        <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+            <div class="w-full max-w-sm rounded-xl bg-white shadow-xl">
+                <div class="px-6 py-5 text-center">
+                    <div class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
+                        <svg class="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-base font-semibold text-gray-800">Perpanjang Member</h3>
+                    <p class="mt-2 text-sm text-gray-500">
+                        Perpanjang langganan <span class="font-semibold text-gray-700">{{ $renewingMemberName }}</span> hingga: <span class="font-semibold text-green-700">{{ $renewingEndDate }}</span>?
+                    </p>
+                </div>
+                <div class="flex gap-3 border-t border-gray-100 px-6 py-4">
+                    <button wire:click="closeRenewModal"
+                        class="flex-1 rounded-lg px-4 py-2 text-sm font-medium text-gray-600 ring-1 ring-gray-300 hover:bg-gray-50 transition-colors">
+                        Batal
+                    </button>
+                    <button wire:click="renewMember({{ $renewingMemberId }})" wire:loading.attr="disabled"
+                        class="flex-1 rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 transition-colors disabled:opacity-60">
+                        <span wire:loading.remove wire:target="renewMember">Ya, Perpanjang</span>
+                        <span wire:loading wire:target="renewMember">Memproses...</span>
                     </button>
                 </div>
             </div>

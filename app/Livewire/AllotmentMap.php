@@ -11,28 +11,35 @@ use Illuminate\View\View;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
+/**
+ * Komponen Livewire untuk Peta Alokasi Slot Parkir (Allotment Map).
+ * Digunakan untuk menampilkan denah slot parkir real-time dengan status warnanya,
+ * serta memfasilitasi admin untuk memantau detail kendaraan terparkir dan melakukan status override manual.
+ */
 #[Title('Allotment Map')]
 class AllotmentMap extends Component
 {
-    /** Filter jenis kendaraan: 'all' | 'motor' | 'mobil' | 'truk' */
+    /**
+     * Filter jenis kendaraan aktif: 'all', 'motor', 'mobil', atau 'truk'.
+     */
     public string $filter = 'all';
 
     /**
-     * Data slot yang sedang dipilih (status=occupied) untuk ditampilkan di modal.
+     * Menyimpan data slot parkir yang sedang dipilih/diklik untuk ditampilkan di detail modal.
      *
      * @var array<string, mixed>|null
      */
     public ?array $selectedSlot = null;
 
     /**
-     * Data transaksi aktif untuk slot yang dipilih.
+     * Menyimpan data transaksi aktif (waktu masuk, plat nomor, durasi) untuk slot yang dipilih.
      *
      * @var array<string, mixed>|null
      */
     public ?array $activeTransaction = null;
 
     /**
-     * Slot yang ditampilkan berdasarkan filter aktif.
+     * Mengambil kumpulan slot parkir dari database berdasarkan filter jenis kendaraan yang aktif.
      *
      * @return Collection<int, ParkingSlot>
      */
@@ -43,7 +50,11 @@ class AllotmentMap extends Component
             : ParkingSlot::where('vehicle_type', $this->filter)->orderBy('slot_code')->get();
     }
 
-    /** Set filter dan tutup modal yang mungkin terbuka. */
+    /**
+     * Mengatur nilai filter jenis kendaraan dan mereset status pilihan slot yang aktif.
+     *
+     * @param  string  $value  Jenis kendaraan ('all', 'motor', 'mobil', 'truk')
+     */
     public function setFilter(string $value): void
     {
         $this->filter = $value;
@@ -52,28 +63,34 @@ class AllotmentMap extends Component
     }
 
     /**
-     * Klik slot occupied → tampilkan detail transaksi di modal.
+     * Menangani aksi klik pada slot parkir yang terisi (occupied) untuk memuat info transaksi aktifnya.
+     *
+     * @param  int  $slotId  ID slot parkir yang dipilih
      */
     public function selectSlot(int $slotId): void
     {
         $slot = ParkingSlot::find($slotId);
 
+        // Hanya tampilkan detail jika slot ditemukan dan statusnya 'occupied' (terisi)
         if (! $slot || $slot->status !== 'occupied') {
             return;
         }
 
         $this->selectedSlot = $slot->toArray();
 
+        // Cari transaksi parkir aktif terakhir untuk slot tersebut
         $tx = ParkingTransaction::where('slot_id', $slotId)
             ->where('status', 'parked')
             ->latest('entry_time')
             ->first();
 
+        // Jika transaksi aktif ditemukan, hitung durasi parkir berjalan
         if ($tx) {
             $entryTime = Carbon::parse($tx->entry_time);
             $duration = $entryTime->diff(now());
             $durationText = '';
 
+            // Format durasi parkir menjadi jam dan menit
             if ($duration->h > 0 || $duration->days > 0) {
                 $totalHours = ($duration->days * 24) + $duration->h;
                 $durationText = $totalHours.' jam '.$duration->i.' menit';
@@ -91,7 +108,9 @@ class AllotmentMap extends Component
         }
     }
 
-    /** Tutup modal detail slot. */
+    /**
+     * Menutup modal tampilan detail slot parkir.
+     */
     public function closeModal(): void
     {
         $this->selectedSlot = null;
@@ -99,13 +118,17 @@ class AllotmentMap extends Component
     }
 
     /**
-     * Manual override status slot oleh admin.
-     * Hanya izinkan target status: 'available', 'reserved', 'disabled'.
+     * Memfasilitasi admin untuk memaksakan status slot parkir (override) di luar alur sistem normal.
+     * Hanya status 'available', 'reserved', dan 'disabled' yang diizinkan untuk di-override.
+     *
+     * @param  int  $slotId  ID slot parkir yang akan diubah
+     * @param  string  $newStatus  Status baru yang ditargetkan
      */
     public function overrideSlotStatus(int $slotId, string $newStatus): void
     {
         $allowed = ['available', 'reserved', 'disabled'];
 
+        // Cek validitas status baru
         if (! in_array($newStatus, $allowed, true)) {
             return;
         }
@@ -116,20 +139,25 @@ class AllotmentMap extends Component
             return;
         }
 
+        // Perbarui status slot di database
         $slot->update(['status' => $newStatus]);
 
+        // Catat aktivitas tindakan admin ke log keamanan
         Log::info("Admin override slot {$slot->slot_code} to {$newStatus} by ".auth()->user()->name);
 
-        // Tutup modal jika slot yang di-override sedang terbuka
+        // Jika slot yang diubah statusnya sedang dibuka detailnya di modal, tutup modal tersebut
         if ($this->selectedSlot && (int) $this->selectedSlot['id'] === $slotId) {
             $this->selectedSlot = null;
             $this->activeTransaction = null;
         }
 
-        // Dispatch event agar grid me-refresh dirinya sendiri
+        // Emit event/dispatch untuk memicu re-render reaktif pada grid halaman peta
         $this->dispatch('slot-updated');
     }
 
+    /**
+     * Merender file view Blade allotment-map dengan menyuplai daftar slot parkir terfilter.
+     */
     public function render(): View
     {
         return view('livewire.allotment-map', [

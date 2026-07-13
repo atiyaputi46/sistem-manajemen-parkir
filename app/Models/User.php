@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
@@ -16,6 +15,10 @@ use Laravel\Fortify\PasskeyAuthenticatable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 
 /**
+ * Model Eloquent untuk data Pengguna Sistem (User).
+ * Menangani akun administrator dan petugas gerbang (staff),
+ * serta mendukung Two-Factor Authentication (2FA) dan Passkeys autentikasi via Fortify.
+ *
  * @property int $id
  * @property string $name
  * @property string $email
@@ -36,7 +39,7 @@ class User extends Authenticatable implements PasskeyUser
     use HasFactory, Notifiable, PasskeyAuthenticatable, TwoFactorAuthenticatable;
 
     /**
-     * Get the attributes that should be cast.
+     * Mengatur casting tipe data atribut bawaan database saat diakses dari Model.
      *
      * @return array<string, string>
      */
@@ -49,7 +52,10 @@ class User extends Authenticatable implements PasskeyUser
     }
 
     /**
-     * Get the user's initials
+     * Menghasilkan teks inisial dari nama pengguna (maksimal 2 karakter pertama kata).
+     * Contoh: "Petugas Gerbang" menjadi "PG".
+     *
+     * @return string Inisial nama pengguna
      */
     public function initials(): string
     {

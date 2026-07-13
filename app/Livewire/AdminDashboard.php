@@ -8,56 +8,74 @@ use Illuminate\View\View;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
+/**
+ * Komponen Livewire untuk Dashboard Admin.
+ * Menangani perhitungan statistik real-time seperti pendapatan hari ini,
+ * okupansi slot parkir, kendaraan aktif di dalam, dan statistik grafik per jam.
+ */
 #[Title('Dashboard')]
 class AdminDashboard extends Component
 {
-    /** Total pendapatan hari ini (SUM fee, status=exited, exit_time hari ini). */
+    /**
+     * Menyimpan total pendapatan hari ini (jumlah nominal fee transaksi selesai).
+     */
     public float $totalRevenueToday = 0;
 
-    /** Jumlah kendaraan aktif di dalam (status=parked). */
+    /**
+     * Menyimpan jumlah kendaraan yang saat ini sedang parkir (status = parked).
+     */
     public int $activeVehicles = 0;
 
-    /** Persentase kapasitas terisi (occupied / total slot). */
+    /**
+     * Persentase okupansi kapasitas parkir terisi (slot occupied / total slot).
+     */
     public int $occupancyPercent = 0;
 
-    /** Jumlah transaksi flagged. */
+    /**
+     * Jumlah transaksi yang ditandai bermasalah (status = flagged).
+     */
     public int $flaggedCount = 0;
 
     /**
-     * Data chart 24 elemen (index = jam 0–23).
+     * Menyimpan data jumlah kendaraan masuk per jam untuk grafik (24 jam, index 0-23).
      *
      * @var array<int, int>
      */
     public array $chartData = [];
 
+    /**
+     * Method inisialisasi awal saat komponen dimuat.
+     * Memanggil method loadStats untuk memuat data pertama kali.
+     */
     public function mount(): void
     {
         $this->loadStats();
     }
 
     /**
-     * Dipanggil otomatis oleh wire:poll setiap 60 detik.
+     * Memuat ulang data statistik parkir dari database.
+     * Method ini juga dipicu secara periodik setiap 60 detik melalui wire:poll pada view.
      */
     public function loadStats(): void
     {
-        // a. Total pendapatan hari ini
+        // Menghitung total biaya (fee) dari transaksi berstatus 'exited' pada hari ini
         $this->totalRevenueToday = (float) ParkingTransaction::query()
             ->where('status', 'exited')
             ->whereDate('exit_time', today())
             ->sum('fee');
 
-        // b. Kendaraan aktif di dalam
+        // Menghitung jumlah kendaraan yang berstatus 'parked' (masih berada di dalam area parkir)
         $this->activeVehicles = ParkingTransaction::where('status', 'parked')->count();
 
-        // c. Persentase kapasitas
+        // Mengambil jumlah slot yang terisi, total slot, dan menghitung persentase kapasitas terisi
         $occupied = ParkingSlot::where('status', 'occupied')->count();
         $total = ParkingSlot::count();
         $this->occupancyPercent = $total > 0 ? (int) round(($occupied / $total) * 100) : 0;
 
-        // d. Flagged count
+        // Mengambil jumlah transaksi parkir yang berstatus bermasalah/flagged
         $this->flaggedCount = ParkingTransaction::where('status', 'flagged')->count();
 
-        // e. Chart data: kendaraan masuk per jam hari ini
+        // Mengambil data mentah jumlah transaksi masuk per jam untuk hari ini dari database
         $rawHourly = ParkingTransaction::query()
             ->selectRaw('HOUR(entry_time) as hour, COUNT(*) as count')
             ->whereDate('entry_time', today())
@@ -65,6 +83,7 @@ class AdminDashboard extends Component
             ->pluck('count', 'hour')
             ->toArray();
 
+        // Mengisi array chartData untuk masing-masing jam dari 0 hingga 23
         $hourly = [];
         for ($i = 0; $i < 24; $i++) {
             $hourly[$i] = $rawHourly[$i] ?? 0;
@@ -73,6 +92,9 @@ class AdminDashboard extends Component
         $this->chartData = $hourly;
     }
 
+    /**
+     * Merender file view Blade yang terkait dengan komponen dashboard admin.
+     */
     public function render(): View
     {
         return view('livewire.admin-dashboard');

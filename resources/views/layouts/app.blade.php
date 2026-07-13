@@ -29,9 +29,10 @@
 
                 {{-- Logo / App Name --}}
                 <div class="flex items-center gap-2 px-6 py-5 border-b border-gray-700">
-                    <svg class="h-7 w-7 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M8 17l4 4 4-4m-4-5v9M4 6h16M4 10h16" />
+                    <svg class="h-7 w-7 text-sky-400 shrink-0" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="0.5" y="0.5" width="31" height="31" rx="8" fill="currentColor" fill-opacity="0.15" stroke="currentColor" stroke-width="1"/>
+                        <circle cx="16" cy="16" r="7.5" stroke="currentColor" stroke-width="1.5"/>
+                        <text x="16" y="21.5" font-family="system-ui, -apple-system, sans-serif" font-weight="800" font-size="14" fill="currentColor" text-anchor="middle">P</text>
                     </svg>
                     <span class="text-lg font-semibold tracking-wide">Sistem Parkir</span>
                 </div>

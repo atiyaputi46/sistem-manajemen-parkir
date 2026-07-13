@@ -30,7 +30,7 @@ class ParkingReportExport
 
             // --- Header row ---
             $headerStyle = new Style(fontBold: true);
-            $writer->addRow(Row::fromValues([
+            $writer->addRow(Row::fromValuesWithStyle([
                 'No',
                 'Plat Nomor',
                 'Jenis Kendaraan',
@@ -74,14 +74,14 @@ class ParkingReportExport
 
             // --- Summary rows ---
             $boldStyle = new Style(fontBold: true);
-            $writer->addRow(Row::fromValues(['RINGKASAN LAPORAN'], $boldStyle));
+            $writer->addRow(Row::fromValuesWithStyle(['RINGKASAN LAPORAN'], $boldStyle));
             $writer->addRow(Row::fromValues(['Periode', $this->periodLabel]));
             $writer->addRow(Row::fromValues(['Total Kendaraan', $this->transactions->count()]));
             $writer->addRow(Row::fromValues(['Total Pendapatan (Rp)', $totalFee]));
 
             $writer->addRow(Row::fromValues([]));
-            $writer->addRow(Row::fromValues(['Breakdown per Jenis Kendaraan'], $boldStyle));
-            $writer->addRow(Row::fromValues(['Jenis', 'Jumlah Kendaraan', 'Total Pendapatan (Rp)'], $boldStyle));
+            $writer->addRow(Row::fromValuesWithStyle(['Breakdown per Jenis Kendaraan'], $boldStyle));
+            $writer->addRow(Row::fromValuesWithStyle(['Jenis', 'Jumlah Kendaraan', 'Total Pendapatan (Rp)'], $boldStyle));
 
             foreach ($breakdownData as $type => $data) {
                 $writer->addRow(Row::fromValues([ucfirst($type), $data['count'], $data['fee']]));

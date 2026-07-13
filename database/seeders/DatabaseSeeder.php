@@ -21,6 +21,7 @@ class DatabaseSeeder extends Seeder
             ParkingRateSeeder::class,
             ParkingSlotSeeder::class,
             UserSeeder::class,
+            MemberSeeder::class,
         ]);
     }
 }

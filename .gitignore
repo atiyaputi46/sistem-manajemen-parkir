@@ -28,3 +28,12 @@ yarn-error.log
 boost.json
 PRD.MD
 .agents/
+
+# Specs & API definitions
+/spec/
+openapi.yaml
+openapi.json
+swagger.json
+api.json
+api-spec.json
+api-spec.yaml
