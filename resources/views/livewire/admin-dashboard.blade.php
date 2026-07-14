@@ -101,7 +101,7 @@
             </span>
         </div>
         <div class="relative h-64">
-            <canvas id="hourlyChart"></canvas>
+            <canvas id="hourlyChart" data-chart="@json(array_values($chartData))"></canvas>
         </div>
     </div>
 
@@ -111,11 +111,11 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 (function () {
-    const chartData = @json(array_values($chartData));
-    const labels    = Array.from({ length: 24 }, (_, i) => i.toString().padStart(2, '0') + ':00');
-
     const ctx = document.getElementById('hourlyChart');
     if (!ctx) { return; }
+
+    const chartData = JSON.parse(ctx.getAttribute('data-chart') || '[]');
+    const labels    = Array.from({ length: 24 }, (_, i) => i.toString().padStart(2, '0') + ':00');
 
     // Hancurkan instance lama jika ada (Livewire re-render / poll)
     if (window._hourlyChart instanceof Chart) {
@@ -168,8 +168,9 @@
 
     // Rebuild chart setiap Livewire selesai update (wire:poll)
     document.addEventListener('livewire:updated', function () {
-        const fresh = @json(array_values($chartData));
-        if (window._hourlyChart instanceof Chart) {
+        const freshCtx = document.getElementById('hourlyChart');
+        if (freshCtx && window._hourlyChart instanceof Chart) {
+            const fresh = JSON.parse(freshCtx.getAttribute('data-chart') || '[]');
             window._hourlyChart.data.datasets[0].data = fresh;
             window._hourlyChart.update();
         }

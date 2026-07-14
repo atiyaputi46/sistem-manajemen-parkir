@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use App\Models\ParkingSlot;
 use App\Models\ParkingTransaction;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -76,12 +77,23 @@ class AdminDashboard extends Component
         $this->flaggedCount = ParkingTransaction::where('status', 'flagged')->count();
 
         // Mengambil data mentah jumlah transaksi masuk per jam untuk hari ini dari database
-        $rawHourly = ParkingTransaction::query()
-            ->selectRaw('HOUR(entry_time) as hour, COUNT(*) as count')
-            ->whereDate('entry_time', today())
-            ->groupByRaw('HOUR(entry_time)')
-            ->pluck('count', 'hour')
-            ->toArray();
+        $driver = DB::connection()->getDriverName();
+
+        if ($driver === 'sqlite') {
+            $rawHourly = ParkingTransaction::query()
+                ->selectRaw("CAST(strftime('%H', entry_time) AS INTEGER) as hour, COUNT(*) as count")
+                ->whereDate('entry_time', today())
+                ->groupByRaw("strftime('%H', entry_time)")
+                ->pluck('count', 'hour')
+                ->toArray();
+        } else {
+            $rawHourly = ParkingTransaction::query()
+                ->selectRaw('HOUR(entry_time) as hour, COUNT(*) as count')
+                ->whereDate('entry_time', today())
+                ->groupByRaw('HOUR(entry_time)')
+                ->pluck('count', 'hour')
+                ->toArray();
+        }
 
         // Mengisi array chartData untuk masing-masing jam dari 0 hingga 23
         $hourly = [];
