@@ -1,0 +1,191 @@
+@import "tailwindcss";
+
+@theme {
+  --color-ink: #0F172A;
+  --color-violet: #4F46E5;
+  --color-amber: #F59E0B;
+  --color-cloud: #FFFFFF;
+  --color-slate: #64748B;
+
+  --font-sans: "Inter", sans-serif;
+  --font-display: "Space Grotesk", sans-serif;
+}
+
+@layer base {
+  :root {
+    --color-ink: #0F172A;
+    --color-violet: #4F46E5;
+    --color-amber: #F59E0B;
+    --color-cloud: #FFFFFF;
+    --color-slate: #64748B;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    font-family: var(--font-sans);
+    background-color: #F1F5F9;
+    color: #1E293B;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+  }
+}
+
+/* Accessbility: prefers-reduced-motion compatibility */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto !important;
+  }
+  
+  *,
+  ::before,
+  ::after {
+    animation-delay: -1ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    background-attachment: initial !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0s !important;
+    transition-delay: 0s !important;
+  }
+}
+/* Dorian Valez preloader reveal */
+.dorian-reveal {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  min-height: 100svh;
+  font-family: "Manrope", sans-serif;
+}
+.dorian-reveal .preloader {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100svh;
+  background: #0F172A; /* Dark navy to match current theme */
+  clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%);
+  will-change: clip-path;
+  overflow: hidden;
+  z-index: 2;
+}
+.dorian-reveal .progress-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 7px;
+  background: #0ea5e9; /* Sky 500 to match theme */
+  transform: scaleX(0);
+  transform-origin: left;
+  will-change: transform;
+}
+.dorian-reveal .preloader-images {
+  position: absolute;
+  top: 45%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 25rem;
+  height: 25rem;
+  clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%);
+  will-change: clip-path;
+  overflow: hidden;
+}
+.dorian-reveal .preloader-images .img {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  clip-path: polygon(0% 100%, 100% 100%, 100% 100%, 0% 100%);
+  will-change: clip-path;
+  overflow: hidden;
+}
+.dorian-reveal .preloader-images .img img {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform: scale(2);
+  will-change: transform;
+}
+.dorian-reveal .preloader-copy {
+  position: absolute;
+  bottom: 5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 30%;
+  color: #fff;
+}
+.dorian-reveal .preloader-header {
+  position: absolute;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transform: translateY(60svh);
+  transform-origin: top;
+  will-change: transform;
+  z-index: 2;
+}
+.dorian-reveal .hero {
+  position: relative;
+  width: 100%;
+  height: 100svh;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+  overflow: hidden;
+  background: #fff; /* or another contrasting color */
+}
+.dorian-reveal .divider {
+  position: relative;
+  width: 100%;
+  height: 1.5px;
+  transform: scaleX(0);
+  background: rgba(0, 0, 0, 0.2);
+  will-change: transform;
+}
+.dorian-reveal h1 {
+  text-transform: uppercase;
+  font-size: clamp(2.25rem, 9vw, 8rem);
+  line-height: 1;
+  letter-spacing: clamp(-0.5rem, -0.6vw, 0rem);
+  color: #0F172A;
+}
+.dorian-reveal a {
+  text-decoration: none;
+  text-transform: uppercase;
+  color: #fff;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: clamp(3rem, 14vw, 7.5rem);
+  font-weight: 600;
+  line-height: 0.9;
+  display: block;
+}
+.dorian-reveal img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.dorian-reveal .preloader-header a .char,
+.dorian-reveal .preloader-copy p .line,
+.dorian-reveal .header-row h1 .line {
+  position: relative;
+  display: inline-block;
+  transform: translateY(0);
+  will-change: transform;
+}
+@media (max-width: 1000px) {
+  .dorian-reveal .preloader-images {
+    top: 35%;
+    width: 10rem;
+    height: 10rem;
+  }
+  .dorian-reveal .preloader-copy {
+    width: 80%;
+  }
+  .dorian-reveal .preloader-header {
+    transform: translateY(50svh);
+  }
+}

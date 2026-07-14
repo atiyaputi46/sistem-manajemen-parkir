@@ -1,0 +1,24 @@
+node_modules/
+build/
+dist/
+coverage/
+.DS_Store
+*.log
+.env*
+!.env.example
+
+# Folder spesifikasi pengujian (spec)
+spec/
+specs/
+
+# File spesifikasi & dokumentasi API
+openapi.json
+openapi.yaml
+openapi.yml
+swagger.json
+swagger.yaml
+swagger.yml
+api-spec.json
+api-spec.yaml
+*.api
+

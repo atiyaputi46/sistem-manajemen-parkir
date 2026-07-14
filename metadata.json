@@ -1,0 +1,6 @@
+{
+  "name": "Sistem Parkir",
+  "description": "Landing page Sistem Manajemen Parkir dengan info ketersediaan slot real-time, tarif, dan pendaftaran member.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
